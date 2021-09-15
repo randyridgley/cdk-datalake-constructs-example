@@ -2,7 +2,7 @@
 
 This is my attempt at a data mesh strategy in AWS using the CDK to aid in repeatable deployments. This is based on looking at best practices and example diagrams and bringing them all together into a cohesive demo. What I want to accomplish is giving you the ability to isolate the data in your data lake, provide a central Glue data catalog and ultimately allow consumers to access the data in their accounts without having direct access to the source objects in S3. I started this project based on watching a presentation with the diagram below and wondered how hard it would be to implement. It shows the breakout of accounts into 3 main accounts: the data product, the data governance, and consumer accounts respectively. There are a few configuration steps required for cross account tagging to take place and make the whole thing work.
 
-![Data Mesh](../../../assets/images/data-mesh-central-governance.png)
+![Data Mesh](./assets/images/data-mesh-central-governance.png)
 
 ## Setup
 
@@ -91,16 +91,16 @@ Lake Formation starts with the "Use only IAM access control" settings enabled fo
 
 1. Clear both check boxes and choose `Save`.
 
-  ![dl-setting](../../../assets/images/dl-settings-page.png)
+  ![dl-setting](./assets/images/dl-settings-page.png)
 
 
-5. In the navigation pane, under `Permissions`, choose `Admins and database creators`.
+2. In the navigation pane, under `Permissions`, choose `Admins and database creators`.
 
-6. Under `Database creators`, select the `IAMAllowedPrincipals` group, and choose `Revoke`.
+3. Under `Database creators`, select the `IAMAllowedPrincipals` group, and choose `Revoke`.
 
-7. The Revoke permissions dialog box appears, showing that `IAMAllowedPrincipals` has the Create database permission.
+4. The Revoke permissions dialog box appears, showing that `IAMAllowedPrincipals` has the Create database permission.
 
-8. Choose `Revoke` and hit `Save`.
+5. Choose `Revoke` and hit `Save`.
 
 Once the steps above are completed you are now ready to launch the CDK scripts in each account. Find the `cdk.context.json` document in the root of this project and open it in your favorite editor. If the file does not exist go ahead and create it. We need to add 5 keys for the 3 accounts, initial password for consumer account, and the region of your choice to run in like below.
 
@@ -308,7 +308,7 @@ The central account will be the account that hosts the centralized Glue data cat
 
 The first thing we want to do is populate the Glue data catalog with the metadata of the data in the `Product` account. The CDK script created a Glue crawler for each data set. Go to the [AWS Glue service page](https://console.aws.amazon.com/glue/) and select the `Crawlers` link from the left hand nav. For each crawler listed, click the check box one at a time and click the `Run Crawler` button. This will populate the Glue data catalog and it should look like below.
 
-![central-glue-catalog](../../../assets/images/glue-catalog.png)
+![central-glue-catalog](./assets/images/glue-catalog.png)
 
 ### Resource Tagging
 
@@ -410,7 +410,7 @@ You will see that the all the tables but `green` from the `central-lake` databas
 * 
 You should now have a row in the `Data Permissions` view like below:
 
-![data-permissions](../../../assets/images/consumer-cross-table-access.png)
+![data-permissions](./assets/images/consumer-cross-table-access.png)
 
 With the Resource Links created it's now time to assign the approriate `Data Permissions` to the `datalakeAnalyst` user.
 
