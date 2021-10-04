@@ -5,11 +5,15 @@ const project = new AwsCdkTypeScriptApp({
   name: 'central-governance',
 
   cdkDependencies: [
-    '@aws-cdk/core'
-  ],        /* Which AWS CDK modules (those that start with "@aws-cdk/") this app uses. */
+    '@aws-cdk/aws-athena',
+    '@aws-cdk/core',
+    '@aws-cdk/aws-ec2',
+    '@aws-cdk/aws-s3',
+    '@aws-cdk/aws-sam',
+  ], /* Which AWS CDK modules (those that start with "@aws-cdk/") this app uses. */
   deps: [
-    '@randyridgley/cdk-datalake-constructs'
-  ],                          /* Runtime dependencies of this module. */
+    '@randyridgley/cdk-datalake-constructs',
+  ], /* Runtime dependencies of this module. */
   github: false,
   // description: undefined,            /* The description is just a string that helps people understand the purpose of the package. */
   // devDeps: [],                       /* Build dependencies for this module. */

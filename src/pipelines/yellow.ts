@@ -1,4 +1,4 @@
-import * as dl from '@randyridgley/cdk-datalake-constructs'
+import * as dl from '@randyridgley/cdk-datalake-constructs';
 import { DataSetLocation } from '@randyridgley/cdk-datalake-constructs';
 
 export function YellowPipeline() {
@@ -13,6 +13,6 @@ export function YellowPipeline() {
         'trip data/yellow_tripdata_2020-11.csv',
         'trip data/yellow_tripdata_2020-12.csv',
       ],
-    }
+    },
   });
 }

@@ -1,15 +1,15 @@
-import * as cdk from '@aws-cdk/core';
 import * as athena from '@aws-cdk/aws-athena';
 import * as ec2 from '@aws-cdk/aws-ec2';
 import * as s3 from '@aws-cdk/aws-s3';
 import * as sam from '@aws-cdk/aws-sam';
+import * as cdk from '@aws-cdk/core';
 
 import * as dl from '@randyridgley/cdk-datalake-constructs';
 
 export interface DataConsumerStackProps extends cdk.StackProps {
   readonly stageName: dl.Stage;
-  readonly lakeName: string
-  readonly policyTags: { [name: string]: string }  
+  readonly lakeName: string;
+  readonly policyTags: { [name: string]: string };
 }
 
 export class DataConsumerStack extends cdk.Stack {
@@ -18,14 +18,14 @@ export class DataConsumerStack extends cdk.Stack {
     let region = cdk.Stack.of(this).region;
     let accountId = cdk.Stack.of(this).account;
 
-    if(props.env) {
-      region = props.env.region!
-      accountId = props.env.account!
+    if (props.env) {
+      region = props.env.region!;
+      accountId = props.env.account!;
     }
 
     const vpc = new ec2.Vpc(this, 'StudioVPC', {
       maxAzs: 3,
-      natGateways: 0
+      natGateways: 0,
     });
 
     cdk.Tags.of(vpc).add('Name', 'DemoVPC');
@@ -37,22 +37,22 @@ export class DataConsumerStack extends cdk.Stack {
       stageName: props.stageName,
       policyTags: props.policyTags,
       vpc: vpc,
-      createDefaultDatabase: true
+      createDefaultDatabase: true,
     });
-    
+
     // UDF defined in the Serverless Application Repository for the Athena Text Analysis UDF
     new sam.CfnApplication(this, 'sam-text-analytics-udf', {
       location: {
-        applicationId: "arn:aws:serverlessrepo:us-east-1:912625584728:applications/TextAnalyticsUDFHandler",
-        semanticVersion: "0.2.1"
+        applicationId: 'arn:aws:serverlessrepo:us-east-1:912625584728:applications/TextAnalyticsUDFHandler',
+        semanticVersion: '0.2.1',
       },
       parameters: {
-        "LambdaFunctionName": 'textanalytics-udf',
-        "LambdaMemory": "3008",
-        "LambdaTimeout": "900",
-      }
+        LambdaFunctionName: 'textanalytics-udf',
+        LambdaMemory: '3008',
+        LambdaTimeout: '900',
+      },
     });
-    
+
     const namedQuery = new athena.CfnNamedQuery(this, 'text-udf-named-query', {
       database: datalake.databases[props.lakeName].databaseName,
       workGroup: datalake.athenaWorkgroup.name,
@@ -96,9 +96,9 @@ SELECT
     review_headline, review_body
 FROM amazon_reviews_with_text_analysis;
 
-select * from amazon_reviews_with_text_analysis limit 10;`
+select * from amazon_reviews_with_text_analysis limit 10;`,
     });
-    namedQuery.node.addDependency(datalake.athenaWorkgroup)
+    namedQuery.node.addDependency(datalake.athenaWorkgroup);
 
     const yellowNamedQuery = new athena.CfnNamedQuery(this, 'yellow-named-query', {
       database: datalake.databases[props.lakeName].databaseName,
@@ -112,47 +112,47 @@ LEFT JOIN "dynamodb-catalog"."default"."zone-lookup" pl
 on y.pulocationid = pl.locationid
 LEFT JOIN "dynamodb-catalog"."default"."zone-lookup" do
 on y.pulocationid = do.locationid
-limit 50;`
+limit 50;`,
     });
-    yellowNamedQuery.node.addDependency(datalake.athenaWorkgroup)
+    yellowNamedQuery.node.addDependency(datalake.athenaWorkgroup);
 
     const athenaDataSource = new athena.CfnDataCatalog(this, 'athena-source', {
-      name: "dynamodb-catalog",
-      description: "catalog for dynamodb",
-      type: "LAMBDA",
+      name: 'dynamodb-catalog',
+      description: 'catalog for dynamodb',
+      type: 'LAMBDA',
       parameters: {
-        "function": "arn:aws:lambda:" + region + ":" + accountId + ":function:dynamodb-catalog" 
-      }
+        function: `arn:aws:lambda:${region}:${accountId}:function:dynamodb-catalog`,
+      },
     });
 
     const athenaSpillBucket = new s3.Bucket(this, 'bucket-ath-spill', {
       bucketName: 'demo-cdk-datalake-spill-bucket',
       autoDeleteObjects: true,
-      removalPolicy: cdk.RemovalPolicy.DESTROY
+      removalPolicy: cdk.RemovalPolicy.DESTROY,
     });
 
     new sam.CfnApplication(this, 'sam-ddb-connector', {
       location: {
-        applicationId: "arn:aws:serverlessrepo:us-east-1:292517598671:applications/AthenaDynamoDBConnector",
-        semanticVersion: "2021.14.1"
+        applicationId: 'arn:aws:serverlessrepo:us-east-1:292517598671:applications/AthenaDynamoDBConnector',
+        semanticVersion: '2021.14.1',
       },
       parameters: {
-        "AthenaCatalogName": athenaDataSource.name,
-        "LambdaMemory": "3008",
-        "LambdaTimeout": "900",
-        "SpillBucket": athenaSpillBucket.bucketName
-      }
+        AthenaCatalogName: athenaDataSource.name,
+        LambdaMemory: '3008',
+        LambdaTimeout: '900',
+        SpillBucket: athenaSpillBucket.bucketName,
+      },
     });
 
-    // todo: add the needed permissions for athena UDFs s3 location for workgroup, workgroup, and lambda invoke 
+    // todo: add the needed permissions for athena UDFs s3 location for workgroup, workgroup, and lambda invoke
     new dl.DataLakeAnalyst(this, 'datalake-analyst-user', {
       name: 'datalakeAnalyst',
       readAccessBuckets: [
-        datalake.logBucket
+        datalake.logBucket,
       ],
       writeAccessBuckets: [
-        datalake.logBucket
-      ]
+        datalake.logBucket,
+      ],
     });
   }
 }
