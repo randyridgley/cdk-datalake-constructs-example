@@ -1,4 +1,4 @@
-import { App } from '@aws-cdk/core';
+import { App, RemovalPolicy } from '@aws-cdk/core';
 import * as dl from '@randyridgley/cdk-datalake-constructs';
 import { DataCentralStack } from './data-central-stack';
 import { DataConsumerStack } from './data-consumer-stack';
@@ -27,12 +27,20 @@ const dataProducts: Array<dl.DataProduct> = [{
   accountId: lakeAccountId,
   dataCatalogAccountId: centralAccountId,
   databaseName: 'taxi-product',
+  s3BucketProps: {
+    autoDeleteObjects: false,
+    removalPolicy: RemovalPolicy.RETAIN,
+  },
 },
 {
   pipelines: reviewPipes,
   accountId: lakeAccountId,
   dataCatalogAccountId: centralAccountId,
   databaseName: 'reviews-product',
+  s3BucketProps: {
+    autoDeleteObjects: false,
+    removalPolicy: RemovalPolicy.RETAIN,
+  },
 }];
 
 // Central catalog stack

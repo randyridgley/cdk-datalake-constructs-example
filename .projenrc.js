@@ -8,13 +8,20 @@ const project = new AwsCdkTypeScriptApp({
     '@aws-cdk/aws-athena',
     '@aws-cdk/core',
     '@aws-cdk/aws-ec2',
+    '@aws-cdk/aws-lakeformation',
+    '@aws-cdk/aws-lambda',
+    '@aws-cdk/aws-lambda-python',
     '@aws-cdk/aws-s3',
     '@aws-cdk/aws-sam',
   ], /* Which AWS CDK modules (those that start with "@aws-cdk/") this app uses. */
   deps: [
     '@randyridgley/cdk-datalake-constructs',
   ], /* Runtime dependencies of this module. */
-  github: false,
+  github: true,
+  gitignore: [
+    '*.DS_Store',
+    '*cdk.context.json',
+  ],
   // description: undefined,            /* The description is just a string that helps people understand the purpose of the package. */
   // devDeps: [],                       /* Build dependencies for this module. */
   // packageName: undefined,            /* The "name" in package.json. */

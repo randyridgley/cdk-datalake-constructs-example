@@ -89,6 +89,21 @@
       "type": "runtime"
     },
     {
+      "name": "@aws-cdk/aws-lakeformation",
+      "version": "^1.95.2",
+      "type": "runtime"
+    },
+    {
+      "name": "@aws-cdk/aws-lambda-python",
+      "version": "^1.95.2",
+      "type": "runtime"
+    },
+    {
+      "name": "@aws-cdk/aws-lambda",
+      "version": "^1.95.2",
+      "type": "runtime"
+    },
+    {
       "name": "@aws-cdk/aws-s3",
       "version": "^1.95.2",
       "type": "runtime"

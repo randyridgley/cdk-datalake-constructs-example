@@ -1,5 +1,6 @@
 import * as cdk from '@aws-cdk/core';
 import * as dl from '@randyridgley/cdk-datalake-constructs';
+import { LakeType } from '@randyridgley/cdk-datalake-constructs';
 
 export interface DataCentralStackProps extends cdk.StackProps {
   readonly lakeName: string;
@@ -28,8 +29,7 @@ export class DataCentralStack extends cdk.Stack {
 
     new dl.DataLake(this, 'CentralDataLake', {
       name: props.lakeName,
-      accountId: accountId,
-      region: region,
+      lakeType: LakeType.CENTRAL_CATALOG,
       stageName: props.stageName,
       policyTags: props.policyTags,
       crossAccountAccess: props.crossAccountAccess ? props.crossAccountAccess : undefined,

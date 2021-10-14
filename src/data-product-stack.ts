@@ -2,6 +2,7 @@ import * as ec2 from '@aws-cdk/aws-ec2';
 import * as cdk from '@aws-cdk/core';
 
 import * as dl from '@randyridgley/cdk-datalake-constructs';
+import { LakeType } from '@randyridgley/cdk-datalake-constructs';
 
 export interface DataProductStackProps extends cdk.StackProps {
   readonly dataProducts: dl.DataProduct[];
@@ -27,8 +28,7 @@ export class DataProductStack extends cdk.Stack {
     // create the local data lake with their own Glue Data catalog and IAM Role to act as data lake administrator
     const datalake = new dl.DataLake(this, 'LocalDataLake', {
       name: props.lakeName,
-      accountId: accountId,
-      region: region,
+      lakeType: LakeType.DATA_PRODUCT,
       stageName: props.stageName,
       crossAccountAccess: props.crossAccountAccess ? props.crossAccountAccess : undefined,
       vpc: vpc,
@@ -36,7 +36,7 @@ export class DataProductStack extends cdk.Stack {
       createDefaultDatabase: true,
     });
 
-    datalake.createDownloaderCustomResource(accountId, region, props.stageName);
+    datalake.createDownloaderCustomResource(props.stageName);
   }
 
   private createVpc() : ec2.Vpc {
