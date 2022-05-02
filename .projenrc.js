@@ -1,31 +1,19 @@
-const { AwsCdkTypeScriptApp } = require('projen');
-const project = new AwsCdkTypeScriptApp({
-  cdkVersion: '1.95.2',
+const { awscdk } = require('projen');
+const project = new awscdk.AwsCdkTypeScriptApp({
+  cdkVersion: '2.13.0',
   defaultReleaseBranch: 'main',
   name: 'central-governance',
 
-  cdkDependencies: [
-    '@aws-cdk/aws-athena',
-    '@aws-cdk/core',
-    '@aws-cdk/aws-ec2',
-    '@aws-cdk/aws-lakeformation',
-    '@aws-cdk/aws-lambda',
-    '@aws-cdk/aws-lambda-python',
-    '@aws-cdk/aws-s3',
-    '@aws-cdk/aws-sam',
-  ], /* Which AWS CDK modules (those that start with "@aws-cdk/") this app uses. */
   deps: [
+    'aws-cdk-lib',
     '@randyridgley/cdk-datalake-constructs',
-  ], /* Runtime dependencies of this module. */
-  github: true,
-  gitignore: [
-    '*.DS_Store',
-    '*cdk.context.json',
   ],
-  // description: undefined,            /* The description is just a string that helps people understand the purpose of the package. */
-  // devDeps: [],                       /* Build dependencies for this module. */
-  // packageName: undefined,            /* The "name" in package.json. */
-  // projectType: ProjectType.UNKNOWN,  /* Which type of project this is (library/app). */
-  // release: undefined,                /* Add release management to this project. */
+  devDeps: [
+    'cdk-nag'
+  ] 
+  // description: undefined,  /* The description is just a string that helps people understand the purpose of the package. */
+  // devDeps: [],             /* Build dependencies for this module. */
+  // packageName: undefined,  /* The "name" in package.json. */
+  // release: undefined,      /* Add release management to this project. */
 });
 project.synth();

@@ -1,11 +1,11 @@
-import { DataPipelineType, DataSetLocation, Pipeline } from '@randyridgley/cdk-datalake-constructs';
+import { DataPipelineType, DataTier, Pipeline } from '@randyridgley/cdk-datalake-constructs';
 
 export function ReviewsPipeline() {
   return new Pipeline({
     type: DataPipelineType.S3,
     name: 'reviews',
     destinationPrefix: 'reviews/',
-    dataSetDropLocation: DataSetLocation.REFINED,
+    dataSetDropTier: DataTier.REFINED,
     s3Properties: {
       sourceBucketName: 'amazon-reviews-pds',
       sourceKeys: [

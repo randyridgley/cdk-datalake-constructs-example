@@ -1,5 +1,5 @@
-import { App, RemovalPolicy } from '@aws-cdk/core';
 import * as dl from '@randyridgley/cdk-datalake-constructs';
+import { App, RemovalPolicy } from 'aws-cdk-lib';
 import { DataCentralStack } from './data-central-stack';
 import { DataConsumerStack } from './data-consumer-stack';
 import { DataProductStack } from './data-product-stack';
@@ -86,5 +86,6 @@ new DataConsumerStack(app, 'DataConsumerStack', {
     access: 'analyst,engineer,marketing',
   },
 });
+
 
 app.synth();

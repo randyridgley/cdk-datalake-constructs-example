@@ -1,8 +1,9 @@
-import * as cdk from '@aws-cdk/core';
 import * as dl from '@randyridgley/cdk-datalake-constructs';
 import { LakeType } from '@randyridgley/cdk-datalake-constructs';
+import { Stack, StackProps } from 'aws-cdk-lib';
+import { Construct } from 'constructs';
 
-export interface DataCentralStackProps extends cdk.StackProps {
+export interface DataCentralStackProps extends StackProps {
   readonly lakeName: string;
   readonly policyTags: { [name: string]: string };
   readonly stageName: dl.Stage;
@@ -16,16 +17,9 @@ export interface ManagedDataSet {
   pipelines: dl.Pipeline[];
 }
 
-export class DataCentralStack extends cdk.Stack {
-  constructor(scope: cdk.Construct, id: string, props: DataCentralStackProps) {
+export class DataCentralStack extends Stack {
+  constructor(scope: Construct, id: string, props: DataCentralStackProps) {
     super(scope, id, props);
-    let region = cdk.Stack.of(this).region;
-    let accountId = cdk.Stack.of(this).account;
-
-    if (props.env) {
-      region = props.env.region!;
-      accountId = props.env.account!;
-    }
 
     new dl.DataLake(this, 'CentralDataLake', {
       name: props.lakeName,

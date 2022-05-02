@@ -1,27 +1,21 @@
-import * as ec2 from '@aws-cdk/aws-ec2';
-import * as cdk from '@aws-cdk/core';
 
 import * as dl from '@randyridgley/cdk-datalake-constructs';
 import { LakeType } from '@randyridgley/cdk-datalake-constructs';
+import { Stack, StackProps, Tags } from 'aws-cdk-lib';
+import { GatewayVpcEndpointAwsService, InterfaceVpcEndpointAwsService, SubnetType, Vpc } from 'aws-cdk-lib/aws-ec2';
+import { Construct } from 'constructs';
 
-export interface DataProductStackProps extends cdk.StackProps {
+export interface DataProductStackProps extends StackProps {
   readonly dataProducts: dl.DataProduct[];
   readonly lakeName: string;
   readonly stageName: dl.Stage;
   readonly crossAccountAccess?: dl.CrossAccountProperties;
 }
 
-export class DataProductStack extends cdk.Stack {
+export class DataProductStack extends Stack {
 
-  constructor(scope: cdk.Construct, id: string, props: DataProductStackProps) {
+  constructor(scope: Construct, id: string, props: DataProductStackProps) {
     super(scope, id, props);
-    let region = cdk.Stack.of(this).region;
-    let accountId = cdk.Stack.of(this).account;
-
-    if (props.env) {
-      region = props.env.region!;
-      accountId = props.env.account!;
-    }
 
     const vpc = this.createVpc();
 
@@ -39,40 +33,40 @@ export class DataProductStack extends cdk.Stack {
     datalake.createDownloaderCustomResource(props.stageName);
   }
 
-  private createVpc() : ec2.Vpc {
-    const vpc = new ec2.Vpc(this, 'lake-vpc', {
+  private createVpc() : Vpc {
+    const vpc = new Vpc(this, 'lake-vpc', {
       maxAzs: 3,
       subnetConfiguration: [
         {
           name: 'isolated',
-          subnetType: ec2.SubnetType.ISOLATED,
+          subnetType: SubnetType.PRIVATE_ISOLATED,
           cidrMask: 26,
         },
         {
           name: 'public',
-          subnetType: ec2.SubnetType.PUBLIC,
+          subnetType: SubnetType.PUBLIC,
           cidrMask: 26,
         },
       ],
       natGateways: 0,
     });
 
-    cdk.Tags.of(vpc).add('Name', 'DemoVPC');
+    Tags.of(vpc).add('Name', 'DemoVPC');
 
     // add endpoints for S3 and Glue private access on the VPC
     vpc.addGatewayEndpoint('s3-endpoint', {
-      service: ec2.GatewayVpcEndpointAwsService.S3,
+      service: GatewayVpcEndpointAwsService.S3,
       subnets: [
         {
-          subnetType: ec2.SubnetType.ISOLATED,
+          subnetType: SubnetType.PRIVATE_ISOLATED,
         },
       ],
     });
 
     vpc.addInterfaceEndpoint('glue-endpoint', {
-      service: ec2.InterfaceVpcEndpointAwsService.GLUE,
+      service: InterfaceVpcEndpointAwsService.GLUE,
       subnets: {
-        subnetType: ec2.SubnetType.PRIVATE_ISOLATED,
+        subnetType: SubnetType.PRIVATE_ISOLATED,
       },
     });
 

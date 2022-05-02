@@ -1,12 +1,12 @@
 import * as dl from '@randyridgley/cdk-datalake-constructs';
-import { DataSetLocation } from '@randyridgley/cdk-datalake-constructs';
+import { DataTier } from '@randyridgley/cdk-datalake-constructs';
 
 export function YellowPipeline() {
   return new dl.Pipeline({
     type: dl.DataPipelineType.S3,
     name: 'taxi-yellow',
     destinationPrefix: 'yellow/',
-    dataSetDropLocation: DataSetLocation.RAW,
+    dataSetDropTier: DataTier.RAW,
     s3Properties: {
       sourceBucketName: 'nyc-tlc',
       sourceKeys: [

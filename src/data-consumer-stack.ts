@@ -1,35 +1,35 @@
-import * as athena from '@aws-cdk/aws-athena';
-import * as ec2 from '@aws-cdk/aws-ec2';
-import * as s3 from '@aws-cdk/aws-s3';
-import * as sam from '@aws-cdk/aws-sam';
-import * as cdk from '@aws-cdk/core';
-
 import * as dl from '@randyridgley/cdk-datalake-constructs';
 import { LakeType } from '@randyridgley/cdk-datalake-constructs';
+import { RemovalPolicy, Stack, StackProps, Tags } from 'aws-cdk-lib';
+import { CfnDataCatalog, CfnNamedQuery } from 'aws-cdk-lib/aws-athena';
+import { Vpc } from 'aws-cdk-lib/aws-ec2';
+import { Bucket } from 'aws-cdk-lib/aws-s3';
+import { CfnApplication } from 'aws-cdk-lib/aws-sam';
+import { Construct } from 'constructs';
 
-export interface DataConsumerStackProps extends cdk.StackProps {
+export interface DataConsumerStackProps extends StackProps {
   readonly stageName: dl.Stage;
   readonly lakeName: string;
   readonly policyTags: { [name: string]: string };
 }
 
-export class DataConsumerStack extends cdk.Stack {
-  constructor(scope: cdk.Construct, id: string, props: DataConsumerStackProps) {
+export class DataConsumerStack extends Stack {
+  constructor(scope: Construct, id: string, props: DataConsumerStackProps) {
     super(scope, id, props);
-    let region = cdk.Stack.of(this).region;
-    let accountId = cdk.Stack.of(this).account;
+    let region = Stack.of(this).region;
+    let accountId = Stack.of(this).account;
 
     if (props.env) {
       region = props.env.region!;
       accountId = props.env.account!;
     }
 
-    const vpc = new ec2.Vpc(this, 'StudioVPC', {
+    const vpc = new Vpc(this, 'StudioVPC', {
       maxAzs: 3,
       natGateways: 0,
     });
 
-    cdk.Tags.of(vpc).add('Name', 'DemoVPC');
+    Tags.of(vpc).add('Name', 'DemoVPC');
 
     const datalake = new dl.DataLake(this, 'ConsumerDataLake', {
       name: props.lakeName,
@@ -42,7 +42,7 @@ export class DataConsumerStack extends cdk.Stack {
     });
 
     // UDF defined in the Serverless Application Repository for the Athena Text Analysis UDF
-    new sam.CfnApplication(this, 'sam-text-analytics-udf', {
+    new CfnApplication(this, 'sam-text-analytics-udf', {
       location: {
         applicationId: 'arn:aws:serverlessrepo:us-east-1:912625584728:applications/TextAnalyticsUDFHandler',
         semanticVersion: '0.2.1',
@@ -54,7 +54,7 @@ export class DataConsumerStack extends cdk.Stack {
       },
     });
 
-    const namedQuery = new athena.CfnNamedQuery(this, 'text-udf-named-query', {
+    const namedQuery = new CfnNamedQuery(this, 'text-udf-named-query', {
       database: datalake.databases[props.lakeName].databaseName,
       workGroup: datalake.athenaWorkgroup!.name,
       name: 'TextAnalyticsUDFDemo',
@@ -101,7 +101,7 @@ select * from amazon_reviews_with_text_analysis limit 10;`,
     });
     namedQuery.node.addDependency(datalake.athenaWorkgroup!);
 
-    const yellowNamedQuery = new athena.CfnNamedQuery(this, 'yellow-named-query', {
+    const yellowNamedQuery = new CfnNamedQuery(this, 'yellow-named-query', {
       database: datalake.databases[props.lakeName].databaseName,
       workGroup: datalake.athenaWorkgroup!.name,
       name: 'YellowTaxiDDBDemo',
@@ -117,7 +117,7 @@ limit 50;`,
     });
     yellowNamedQuery.node.addDependency(datalake.athenaWorkgroup!);
 
-    const athenaDataSource = new athena.CfnDataCatalog(this, 'athena-source', {
+    const athenaDataSource = new CfnDataCatalog(this, 'athena-source', {
       name: 'dynamodb-catalog',
       description: 'catalog for dynamodb',
       type: 'LAMBDA',
@@ -126,13 +126,13 @@ limit 50;`,
       },
     });
 
-    const athenaSpillBucket = new s3.Bucket(this, 'bucket-ath-spill', {
+    const athenaSpillBucket = new Bucket(this, 'bucket-ath-spill', {
       bucketName: 'demo-cdk-datalake-spill-bucket',
       autoDeleteObjects: true,
-      removalPolicy: cdk.RemovalPolicy.DESTROY,
+      removalPolicy: RemovalPolicy.DESTROY,
     });
 
-    new sam.CfnApplication(this, 'sam-ddb-connector', {
+    new CfnApplication(this, 'sam-ddb-connector', {
       location: {
         applicationId: 'arn:aws:serverlessrepo:us-east-1:292517598671:applications/AthenaDynamoDBConnector',
         semanticVersion: '2021.14.1',
