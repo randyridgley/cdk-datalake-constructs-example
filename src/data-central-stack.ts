@@ -1,5 +1,5 @@
 import * as dl from '@randyridgley/cdk-datalake-constructs';
-import { LakeType } from '@randyridgley/cdk-datalake-constructs';
+import { LakeKind } from '@randyridgley/cdk-datalake-constructs';
 import { Stack, StackProps } from 'aws-cdk-lib';
 import { Construct } from 'constructs';
 
@@ -23,12 +23,11 @@ export class DataCentralStack extends Stack {
 
     new dl.DataLake(this, 'CentralDataLake', {
       name: props.lakeName,
-      lakeType: LakeType.CENTRAL_CATALOG,
+      lakeKind: LakeKind.CENTRAL_CATALOG,
       stageName: props.stageName,
       policyTags: props.policyTags,
       crossAccountAccess: props.crossAccountAccess ? props.crossAccountAccess : undefined,
       dataProducts: props.dataProducts,
-      createDefaultDatabase: true,
     });
   }
 }

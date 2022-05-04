@@ -9,8 +9,8 @@ const project = new awscdk.AwsCdkTypeScriptApp({
     '@randyridgley/cdk-datalake-constructs',
   ],
   devDeps: [
-    'cdk-nag'
-  ] 
+    'cdk-nag',
+  ],
   // description: undefined,  /* The description is just a string that helps people understand the purpose of the package. */
   // devDeps: [],             /* Build dependencies for this module. */
   // packageName: undefined,  /* The "name" in package.json. */

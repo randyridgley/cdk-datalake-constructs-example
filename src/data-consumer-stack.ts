@@ -1,5 +1,5 @@
 import * as dl from '@randyridgley/cdk-datalake-constructs';
-import { LakeType } from '@randyridgley/cdk-datalake-constructs';
+import { LakeKind } from '@randyridgley/cdk-datalake-constructs';
 import { RemovalPolicy, Stack, StackProps, Tags } from 'aws-cdk-lib';
 import { CfnDataCatalog, CfnNamedQuery } from 'aws-cdk-lib/aws-athena';
 import { Vpc } from 'aws-cdk-lib/aws-ec2';
@@ -33,11 +33,10 @@ export class DataConsumerStack extends Stack {
 
     const datalake = new dl.DataLake(this, 'ConsumerDataLake', {
       name: props.lakeName,
-      lakeType: LakeType.CONSUMER,
+      lakeKind: LakeKind.CONSUMER,
       stageName: props.stageName,
       policyTags: props.policyTags,
       vpc: vpc,
-      createDefaultDatabase: true,
       createAthenaWorkgroup: true,
     });
 
@@ -55,7 +54,7 @@ export class DataConsumerStack extends Stack {
     });
 
     const namedQuery = new CfnNamedQuery(this, 'text-udf-named-query', {
-      database: datalake.databases[props.lakeName].databaseName,
+      database: 'consumer-lake', //datalake.databases[props.lakeName].databaseName,
       workGroup: datalake.athenaWorkgroup!.name,
       name: 'TextAnalyticsUDFDemo',
       queryString: `SELECT * FROM central_reviews limit 10;
@@ -102,7 +101,7 @@ select * from amazon_reviews_with_text_analysis limit 10;`,
     namedQuery.node.addDependency(datalake.athenaWorkgroup!);
 
     const yellowNamedQuery = new CfnNamedQuery(this, 'yellow-named-query', {
-      database: datalake.databases[props.lakeName].databaseName,
+      database: 'consumer-lake', //datalake.databases[props.lakeName].databaseName,
       workGroup: datalake.athenaWorkgroup!.name,
       name: 'YellowTaxiDDBDemo',
       queryString: `SELECT pl.borough as pickup_borough, pl.zone as pickup_zone, do.borough as dropoff_borough, do.zone as dropoff_zone, y.trip_distance, p.name as payment_name, y.fare_amount 

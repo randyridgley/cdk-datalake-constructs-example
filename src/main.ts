@@ -28,8 +28,8 @@ const dataProducts: Array<dl.DataProduct> = [{
   dataCatalogAccountId: centralAccountId,
   databaseName: 'taxi-product',
   s3BucketProps: {
-    autoDeleteObjects: false,
-    removalPolicy: RemovalPolicy.RETAIN,
+    autoDeleteObjects: true,
+    removalPolicy: RemovalPolicy.DESTROY,
   },
 },
 {
@@ -38,8 +38,8 @@ const dataProducts: Array<dl.DataProduct> = [{
   dataCatalogAccountId: centralAccountId,
   databaseName: 'reviews-product',
   s3BucketProps: {
-    autoDeleteObjects: false,
-    removalPolicy: RemovalPolicy.RETAIN,
+    autoDeleteObjects: true,
+    removalPolicy: RemovalPolicy.DESTROY,
   },
 }];
 
@@ -53,8 +53,7 @@ new DataCentralStack(app, 'DataCentralStack', {
   stageName: stage,
   policyTags: {
     admin_andon: 'true,false',
-    classification: 'public,confidential,highlyconfidential,restricted,critical',
-    owner: 'product,central,consumer',
+    team: 'reviews,nyc',
   },
   crossAccountAccess: {
     consumerAccountIds: [consumerAccountId, lakeAccountId],
@@ -72,6 +71,11 @@ new DataProductStack(app, 'DataProductStack', {
   lakeName: 'product-lake',
   stageName: stage,
   dataProducts: dataProducts,
+  policyTags: {
+    admin_andon: 'true,false',
+    classification: 'public,confidential,highlyconfidential,restricted,critical',
+    owner: 'product,central,consumer',
+  },  
 });
 
 // Consumer stack for all compute made available through LF
@@ -86,6 +90,5 @@ new DataConsumerStack(app, 'DataConsumerStack', {
     access: 'analyst,engineer,marketing',
   },
 });
-
 
 app.synth();

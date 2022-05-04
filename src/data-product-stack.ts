@@ -1,6 +1,6 @@
 
 import * as dl from '@randyridgley/cdk-datalake-constructs';
-import { LakeType } from '@randyridgley/cdk-datalake-constructs';
+import { LakeKind } from '@randyridgley/cdk-datalake-constructs';
 import { Stack, StackProps, Tags } from 'aws-cdk-lib';
 import { GatewayVpcEndpointAwsService, InterfaceVpcEndpointAwsService, SubnetType, Vpc } from 'aws-cdk-lib/aws-ec2';
 import { Construct } from 'constructs';
@@ -10,6 +10,7 @@ export interface DataProductStackProps extends StackProps {
   readonly lakeName: string;
   readonly stageName: dl.Stage;
   readonly crossAccountAccess?: dl.CrossAccountProperties;
+  readonly policyTags: { [name: string]: string };
 }
 
 export class DataProductStack extends Stack {
@@ -22,12 +23,12 @@ export class DataProductStack extends Stack {
     // create the local data lake with their own Glue Data catalog and IAM Role to act as data lake administrator
     const datalake = new dl.DataLake(this, 'LocalDataLake', {
       name: props.lakeName,
-      lakeType: LakeType.DATA_PRODUCT,
+      lakeKind: LakeKind.DATA_PRODUCT,
       stageName: props.stageName,
       crossAccountAccess: props.crossAccountAccess ? props.crossAccountAccess : undefined,
       vpc: vpc,
       dataProducts: props.dataProducts,
-      createDefaultDatabase: true,
+      policyTags: props.policyTags,      
     });
 
     datalake.createDownloaderCustomResource(props.stageName);
